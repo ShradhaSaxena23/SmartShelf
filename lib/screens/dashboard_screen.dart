@@ -11069,8 +11069,7 @@ class _MobileInfoItem
 // THREE DOT PRODUCT ACTION MENU
 // =============================================================================
 
-class _ProductActionMenu
-    extends StatelessWidget {
+class _ProductActionMenu extends StatelessWidget {
   final ProductModel product;
   final VoidCallback onSaleIdeas;
   final VoidCallback onDonate;
@@ -11084,25 +11083,24 @@ class _ProductActionMenu
   });
 
   @override
-  Widget build(
-      BuildContext context) {
+  Widget build(BuildContext context) {
     return PopupMenuButton<String>(
       tooltip: 'More actions',
       padding: EdgeInsets.zero,
       iconSize: 22,
       icon: const Icon(
         Icons.more_vert,
-        color:
-            AppTheme.textSecondary,
+        color: AppTheme.textSecondary,
       ),
+
       onSelected: (value) {
         switch (value) {
-          case 'sale_ideas':
-            onSaleIdeas();
-            break;
-
           case 'donate':
             onDonate();
+            break;
+
+          case 'sale_ideas':
+            onSaleIdeas();
             break;
 
           case 'delete':
@@ -11110,10 +11108,52 @@ class _ProductActionMenu
             break;
         }
       },
-      itemBuilder: (context) {
-        final items =
-            <PopupMenuEntry<String>>[];
 
+      itemBuilder: (context) {
+        final List<PopupMenuEntry<String>> items = [];
+
+        // ============================================================
+        // DONATE
+        // ============================================================
+        //
+        // Donate is available for:
+        // 1. Fresh products
+        // 2. Expiring soon products
+        // 3. Expired products
+        //
+        items.add(
+          const PopupMenuItem<String>(
+            value: 'donate',
+            child: Row(
+              children: [
+                Icon(
+                  Icons.volunteer_activism_outlined,
+                  size: 19,
+                  color: AppTheme.donateBlue,
+                ),
+                SizedBox(width: 12),
+                Text(
+                  'Donate',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+
+        // ============================================================
+        // SALE IDEAS
+        // ============================================================
+        //
+        // Sale Ideas is available ONLY when the product is NOT expired.
+        //
+        // Therefore:
+        // Fresh          -> Sale Ideas
+        // Expiring Soon  -> Sale Ideas
+        // Expired        -> NO Sale Ideas
+        //
         if (!product.isExpired) {
           items.add(
             const PopupMenuItem<String>(
@@ -11123,16 +11163,13 @@ class _ProductActionMenu
                   Icon(
                     Icons.auto_awesome,
                     size: 19,
-                    color:
-                        AppTheme.primaryGreen,
+                    color: AppTheme.primaryGreen,
                   ),
                   SizedBox(width: 12),
                   Text(
                     'Sale Ideas',
-                    style:
-                        TextStyle(
-                      fontWeight:
-                          FontWeight.w600,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
@@ -11141,35 +11178,12 @@ class _ProductActionMenu
           );
         }
 
-        if (product.isExpiringSoon ||
-            product.isExpired) {
-          items.add(
-            const PopupMenuItem<String>(
-              value: 'donate',
-              child: Row(
-                children: [
-                  Icon(
-                    Icons
-                        .volunteer_activism,
-                    size: 19,
-                    color:
-                        AppTheme.donateBlue,
-                  ),
-                  SizedBox(width: 12),
-                  Text(
-                    'Donate',
-                    style:
-                        TextStyle(
-                      fontWeight:
-                          FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
-
+        // ============================================================
+        // DELETE
+        // ============================================================
+        //
+        // Delete is available for every product.
+        //
         items.add(
           const PopupMenuItem<String>(
             value: 'delete',
@@ -11178,18 +11192,14 @@ class _ProductActionMenu
                 Icon(
                   Icons.delete_outline,
                   size: 19,
-                  color:
-                      AppTheme.expiredRed,
+                  color: AppTheme.expiredRed,
                 ),
                 SizedBox(width: 12),
                 Text(
                   'Delete',
-                  style:
-                      TextStyle(
-                    fontWeight:
-                        FontWeight.w600,
-                    color:
-                        AppTheme.expiredRed,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.expiredRed,
                   ),
                 ),
               ],

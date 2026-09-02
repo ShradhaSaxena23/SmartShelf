@@ -8256,11 +8256,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
             final dialogWidth = isCompact
                 ? screenWidth - 28
-                : screenWidth.clamp(760.0, 1080.0);
+                : 780.0;
 
             final dialogHeight = isCompact
-                ? (screenHeight * 0.82).clamp(520.0, 680.0)
-                : 650.0;
+                ? (screenHeight * 0.78).clamp(440.0, 620.0)
+                : 570.0;
 
             final monthName =
                 DateFormat('MMMM yyyy').format(visibleMonth);
@@ -8310,8 +8310,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
             return Dialog(
               backgroundColor: Colors.transparent,
               insetPadding: EdgeInsets.symmetric(
-                horizontal: isCompact ? 14 : 24,
-                vertical: isCompact ? 14 : 24,
+                horizontal: isCompact ? 14 : 20,
+                vertical: isCompact ? 14 : 20,
               ),
               child: SizedBox(
                 width: dialogWidth,
@@ -8360,7 +8360,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                             // LEFT DATE PANEL
                             // ==================================================
                             SizedBox(
-                              width: dialogWidth * 0.32,
+                              width: dialogWidth * 0.30,
                               child: Container(
                                 decoration: BoxDecoration(
                                   color: AppTheme.primaryGreen
@@ -8373,10 +8373,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                   ),
                                 ),
                                 padding: const EdgeInsets.fromLTRB(
-                                  52,
-                                  62,
-                                  38,
-                                  34,
+                                  28,
+                                  30,
+                                  20,
+                                  24,
                                 ),
                                 child: Column(
                                   crossAxisAlignment:
@@ -8393,14 +8393,14 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                       ),
                                     ),
 
-                                    const SizedBox(height: 42),
+                                    const SizedBox(height: 26),
 
                                     Text(
                                       selectedDateText
                                           .split(', ')
                                           .first,
                                       style: const TextStyle(
-                                        fontSize: 42,
+                                        fontSize: 32,
                                         height: 1.08,
                                         fontWeight: FontWeight.w500,
                                         color:
@@ -8413,7 +8413,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                     Text(
                                       '${selectedDate.day} ${DateFormat('MMMM').format(selectedDate)}',
                                       style: const TextStyle(
-                                        fontSize: 38,
+                                        fontSize: 28,
                                         height: 1.08,
                                         fontWeight: FontWeight.w500,
                                         color:
@@ -8426,7 +8426,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                     Text(
                                       selectedYearText,
                                       style: TextStyle(
-                                        fontSize: 25,
+                                        fontSize: 20,
                                         fontWeight: FontWeight.w600,
                                         color:
                                             AppTheme.primaryGreen,
@@ -8438,8 +8438,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                     // Decorative date/edit icon matching
                                     // the reference calendar.
                                     Container(
-                                      width: 64,
-                                      height: 64,
+                                      width: 50,
+                                      height: 50,
                                       decoration: BoxDecoration(
                                         color: AppTheme.primaryGreen
                                             .withValues(alpha: 0.09),
@@ -8447,7 +8447,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                       ),
                                       child: Icon(
                                         Icons.edit_calendar_rounded,
-                                        size: 31,
+                                        size: 25,
                                         color:
                                             AppTheme.primaryGreen,
                                       ),
@@ -8463,9 +8463,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
                             Expanded(
                               child: Padding(
                                 padding: const EdgeInsets.fromLTRB(
-                                  42,
-                                  40,
-                                  42,
+                                  24,
+                                  22,
+                                  24,
                                   0,
                                 ),
                                 child: Column(
@@ -8479,7 +8479,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                               Text(
                                                 monthName,
                                                 style: const TextStyle(
-                                                  fontSize: 27,
+                                                  fontSize: 22,
                                                   fontWeight:
                                                       FontWeight.w600,
                                                   color: AppTheme
@@ -8490,7 +8490,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                               Icon(
                                                 Icons
                                                     .keyboard_arrow_down_rounded,
-                                                size: 24,
+                                                size: 20,
                                                 color: AppTheme
                                                     .primaryGreen,
                                               ),
@@ -8538,7 +8538,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                       ],
                                     ),
 
-                                    const SizedBox(height: 42),
+                                    const SizedBox(height: 18),
 
                                     // Weekday labels
                                     Row(
@@ -8562,7 +8562,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                           .toList(),
                                     ),
 
-                                    const SizedBox(height: 18),
+                                    const SizedBox(height: 8),
 
                                     // Calendar grid
                                     Expanded(
@@ -8574,7 +8574,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                         gridDelegate:
                                             const SliverGridDelegateWithFixedCrossAxisCount(
                                           crossAxisCount: 7,
-                                          childAspectRatio: 1.0,
+                                          childAspectRatio: 1.45,
+                                          mainAxisSpacing: 2,
+                                          crossAxisSpacing: 0,
                                         ),
                                         itemBuilder:
                                             (context, index) {
@@ -8675,8 +8677,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                                       const Duration(
                                                     milliseconds: 150,
                                                   ),
-                                                  width: 58,
-                                                  height: 58,
+                                                  width: 38,
+                                                  height: 38,
                                                   alignment:
                                                       Alignment.center,
                                                   decoration:
@@ -8717,7 +8719,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                                   child: Text(
                                                     '$dayNumber',
                                                     style: TextStyle(
-                                                      fontSize: 17,
+                                                      fontSize: 14,
                                                       fontWeight:
                                                           isSelected
                                                               ? FontWeight
@@ -8878,14 +8880,14 @@ class _AddProductScreenState extends State<AddProductScreen> {
     required ValueChanged<DateTime> onVisibleMonthChanged,
   }) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+      padding: const EdgeInsets.fromLTRB(16, 18, 16, 12),
       child: Column(
         children: [
           Row(
             children: [
               Container(
-                width: 42,
-                height: 42,
+                width: 36,
+                height: 36,
                 decoration: BoxDecoration(
                   color: AppTheme.primaryGreen
                       .withValues(alpha: 0.09),
@@ -8894,7 +8896,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 child: Icon(
                   Icons.calendar_today_rounded,
                   color: AppTheme.primaryGreen,
-                  size: 21,
+                  size: 18,
                 ),
               ),
               const SizedBox(width: 12),
@@ -8927,7 +8929,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
             ],
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 18),
 
           Row(
             children: [
@@ -8935,7 +8937,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 child: Text(
                   monthName,
                   style: const TextStyle(
-                    fontSize: 21,
+                    fontSize: 19,
                     fontWeight: FontWeight.w700,
                     color: AppTheme.textPrimary,
                   ),
@@ -8973,7 +8975,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
             ],
           ),
 
-          const SizedBox(height: 22),
+          const SizedBox(height: 10),
 
           Row(
             children: weekdayLabels
@@ -9135,7 +9137,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       child: Text(
         '$day',
         style: TextStyle(
-          fontSize: 17,
+          fontSize: 14,
           fontWeight: FontWeight.w500,
           color: AppTheme.textMuted.withValues(alpha: 0.55),
         ),
