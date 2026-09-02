@@ -22,6 +22,8 @@ class _DashboardScreenState extends State<DashboardScreen>
   late AnimationController _animController;
   late Animation<double> _fadeIn;
   DashboardFilter _selectedFilter = DashboardFilter.all;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -46,6 +48,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   @override
   void dispose() {
     _animController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -106,43 +109,13 @@ class _DashboardScreenState extends State<DashboardScreen>
             const SizedBox(height: 24),
 
             // ── Overview Section ──
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Overview',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.textPrimary,
-                  ),
-                ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppTheme.cardBorder),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'This Week',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: AppTheme.textSecondary,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      SizedBox(width: 4),
-                      Icon(Icons.keyboard_arrow_down,
-                          size: 18, color: AppTheme.textSecondary),
-                    ],
-                  ),
-                ),
-              ],
+            const Text(
+              'Overview',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.textPrimary,
+              ),
             ),
             const SizedBox(height: 14),
 
@@ -250,19 +223,27 @@ class _DashboardScreenState extends State<DashboardScreen>
         ],
       ),
       child: TextField(
+        controller: _searchController,
+        onChanged: (val) {
+          setState(() {
+            _searchQuery = val.trim();
+          });
+        },
         decoration: InputDecoration(
           hintText: 'Search items, categories...',
           hintStyle: const TextStyle(color: AppTheme.textMuted, fontSize: 14),
           prefixIcon: const Icon(Icons.search, color: AppTheme.textMuted, size: 22),
-          suffixIcon: Container(
-            margin: const EdgeInsets.all(6),
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppTheme.backgroundMint,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(Icons.tune, color: AppTheme.primaryGreen, size: 20),
-          ),
+          suffixIcon: _searchQuery.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.clear, color: AppTheme.textMuted, size: 20),
+                  onPressed: () {
+                    _searchController.clear();
+                    setState(() {
+                      _searchQuery = '';
+                    });
+                  },
+                )
+              : null,
           border: InputBorder.none,
           enabledBorder: InputBorder.none,
           focusedBorder: InputBorder.none,
@@ -377,15 +358,31 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   List<ProductModel> _getFilteredProducts(ProductProvider provider) {
+    List<ProductModel> list;
     switch (_selectedFilter) {
       case DashboardFilter.expiringSoon:
-        return provider.expiringSoonProducts;
+        list = provider.expiringSoonProducts;
+        break;
       case DashboardFilter.expired:
-        return provider.expiredProducts;
+        list = provider.expiredProducts;
+        break;
       case DashboardFilter.all:
       default:
-        return provider.allProducts;
+        list = provider.allProducts;
+        break;
     }
+
+    if (_searchQuery.isNotEmpty) {
+      final q = _searchQuery.toLowerCase();
+      return list.where((p) {
+        final nameMatch = p.name.toLowerCase().contains(q);
+        final categoryMatch = p.category.toLowerCase().contains(q);
+        final brandMatch = (p.brand ?? '').toLowerCase().contains(q);
+        return nameMatch || categoryMatch || brandMatch;
+      }).toList();
+    }
+
+    return list;
   }
 
   String get _sectionTitle {
@@ -402,7 +399,6 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   Widget _buildProductsSection(ProductProvider provider, bool isDesktop) {
     final items = _getFilteredProducts(provider);
-    final top5 = items.take(5).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -431,7 +427,7 @@ class _DashboardScreenState extends State<DashboardScreen>
           ],
         ),
         const SizedBox(height: 12),
-        if (top5.isEmpty)
+        if (items.isEmpty)
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(32),
@@ -448,9 +444,9 @@ class _DashboardScreenState extends State<DashboardScreen>
             ),
           )
         else if (isDesktop)
-          _buildProductsTable(top5)
+          _buildProductsTable(items)
         else
-          _buildProductsCards(top5),
+          _buildProductsCards(items),
       ],
     );
   }
@@ -1290,67 +1286,11 @@ class _OverviewCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 10),
-            CustomPaint(
-              size: const Size(double.infinity, 20),
-              painter: _SparklinePainter(color: color),
-            ),
           ],
         ),
       ),
     );
   }
-}
-
-class _SparklinePainter extends CustomPainter {
-  final Color color;
-  _SparklinePainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color.withOpacity(0.5)
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
-    final path = Path();
-    final points = [0.3, 0.6, 0.4, 0.8, 0.5, 0.9, 0.7, 0.4, 0.6, 0.8];
-    final stepX = size.width / (points.length - 1);
-
-    for (int i = 0; i < points.length; i++) {
-      final x = i * stepX;
-      final y = size.height * (1 - points[i]);
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        final prevX = (i - 1) * stepX;
-        final prevY = size.height * (1 - points[i - 1]);
-        final ctrlX = (prevX + x) / 2;
-        path.cubicTo(ctrlX, prevY, ctrlX, y, x, y);
-      }
-    }
-
-    canvas.drawPath(path, paint);
-
-    final fillPaint = Paint()
-      ..shader = LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [color.withOpacity(0.15), color.withOpacity(0.0)],
-      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height))
-      ..style = PaintingStyle.fill;
-
-    final fillPath = Path.from(path)
-      ..lineTo(size.width, size.height)
-      ..lineTo(0, size.height)
-      ..close();
-
-    canvas.drawPath(fillPath, fillPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class _DaysLeftBadge extends StatelessWidget {
