@@ -6,6 +6,7 @@ import '../providers/product_provider.dart';
 import '../theme/app_theme.dart';
 import 'package:intl/intl.dart';
 import 'donate_dialog.dart';
+import 'sale_ideas_dialog.dart';
 
 enum DashboardFilter { all, expiringSoon, expired }
 
@@ -503,24 +504,51 @@ class _DashboardScreenState extends State<DashboardScreen>
                       DataCell(_DiscountBadge(percentage: product.discountPercentage)),
                       DataCell(_StatusBadge(label: product.statusLabel)),
                       DataCell(
-                        product.isExpired
-                            ? ElevatedButton.icon(
-                                onPressed: () => _showDonateDialog(context, product),
-                                icon: const Icon(Icons.volunteer_activism, size: 14),
-                                label: const Text('Donate', style: TextStyle(fontSize: 11)),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppTheme.donateBlue,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                  minimumSize: const Size(0, 32),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                        PopupMenuButton<String>(
+                          icon: const Icon(Icons.more_vert, color: AppTheme.textSecondary),
+                          tooltip: 'Actions',
+                          onSelected: (value) {
+                            if (value == 'sale_ideas') {
+                              showSaleIdeasDialog(context, product);
+                            } else if (value == 'donate') {
+                              _showDonateDialog(context, product);
+                            }
+                          },
+                          itemBuilder: (BuildContext context) {
+                            final List<PopupMenuEntry<String>> items = [];
+                            // Rule: Sale Ideas for Fresh and Expiring Soon products (NOT for Expired)
+                            if (!product.isExpired) {
+                              items.add(
+                                const PopupMenuItem<String>(
+                                  value: 'sale_ideas',
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.auto_awesome, size: 18, color: AppTheme.primaryGreen),
+                                      SizedBox(width: 10),
+                                      Text('Sale Ideas', style: TextStyle(fontWeight: FontWeight.w600)),
+                                    ],
+                                  ),
                                 ),
-                              )
-                            : IconButton(
-                                icon: const Icon(Icons.more_vert, color: AppTheme.textSecondary),
-                                onPressed: () => _showSaleOpportunities(context, product),
-                                tooltip: 'More Sale Opportunities',
-                              ),
+                              );
+                            }
+                            // Rule: Donate for Expiring Soon and Expired products
+                            if (product.isExpiringSoon || product.isExpired) {
+                              items.add(
+                                const PopupMenuItem<String>(
+                                  value: 'donate',
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.volunteer_activism, size: 18, color: AppTheme.donateBlue),
+                                      SizedBox(width: 10),
+                                      Text('Donate', style: TextStyle(fontWeight: FontWeight.w600)),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }
+                            return items;
+                          },
+                        ),
                       ),
                     ]);
                   }).toList(),
@@ -599,32 +627,42 @@ class _DashboardScreenState extends State<DashboardScreen>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _DiscountBadge(percentage: product.discountPercentage),
-                  product.isExpired
-                      ? ElevatedButton.icon(
-                          onPressed: () => _showDonateDialog(context, product),
-                          icon: const Icon(Icons.volunteer_activism, size: 14),
-                          label: const Text('Donate', style: TextStyle(fontSize: 12)),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.donateBlue,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                            minimumSize: const Size(0, 34),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (product.isExpiringSoon || product.isExpired)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 6.0),
+                          child: ElevatedButton.icon(
+                            onPressed: () => _showDonateDialog(context, product),
+                            icon: const Icon(Icons.volunteer_activism, size: 13),
+                            label: const Text('Donate', style: TextStyle(fontSize: 11)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppTheme.donateBlue,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              minimumSize: const Size(0, 32),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
                           ),
-                        )
-                      : TextButton.icon(
-                          onPressed: () => _showSaleOpportunities(context, product),
-                          icon: const Icon(Icons.auto_awesome, size: 16),
-                          label: const Text('More Sale Opportunities', style: TextStyle(fontSize: 12)),
+                        ),
+                      if (!product.isExpired)
+                        TextButton.icon(
+                          onPressed: () => showSaleIdeasDialog(context, product),
+                          icon: const Icon(Icons.auto_awesome, size: 14),
+                          label: const Text('Sale Ideas', style: TextStyle(fontSize: 11)),
                           style: TextButton.styleFrom(
                             foregroundColor: AppTheme.primaryGreen,
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                            minimumSize: const Size(0, 32),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                               side: const BorderSide(color: AppTheme.primaryGreen, width: 1),
                             ),
                           ),
                         ),
+                    ],
+                  ),
                 ],
               ),
             ],
@@ -684,10 +722,38 @@ class _DashboardScreenState extends State<DashboardScreen>
                       DataCell(_DiscountBadge(percentage: product.discountPercentage)),
                       DataCell(_StatusBadge(label: product.statusLabel)),
                       DataCell(
-                        IconButton(
+                        PopupMenuButton<String>(
                           icon: const Icon(Icons.more_vert, color: AppTheme.textSecondary),
-                          onPressed: () => _showSaleOpportunities(context, product),
-                          tooltip: 'More Sale Opportunities',
+                          tooltip: 'Actions',
+                          onSelected: (value) {
+                            if (value == 'sale_ideas') {
+                              showSaleIdeasDialog(context, product);
+                            } else if (value == 'donate') {
+                              _showDonateDialog(context, product);
+                            }
+                          },
+                          itemBuilder: (BuildContext context) => const [
+                            PopupMenuItem<String>(
+                              value: 'sale_ideas',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.auto_awesome, size: 18, color: AppTheme.primaryGreen),
+                                  SizedBox(width: 10),
+                                  Text('Sale Ideas', style: TextStyle(fontWeight: FontWeight.w600)),
+                                ],
+                              ),
+                            ),
+                            PopupMenuItem<String>(
+                              value: 'donate',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.volunteer_activism, size: 18, color: AppTheme.donateBlue),
+                                  SizedBox(width: 10),
+                                  Text('Donate', style: TextStyle(fontWeight: FontWeight.w600)),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ]);
@@ -834,17 +900,26 @@ class _DashboardScreenState extends State<DashboardScreen>
                       DataCell(Text('${product.daysRemaining.abs()} days ago', style: const TextStyle(color: AppTheme.expiredRed, fontWeight: FontWeight.w600))),
                       DataCell(_StatusBadge(label: product.statusLabel)),
                       DataCell(
-                        ElevatedButton.icon(
-                          onPressed: () => _showDonateDialog(context, product),
-                          icon: const Icon(Icons.volunteer_activism, size: 16),
-                          label: const Text('Donate', style: TextStyle(fontSize: 12)),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.donateBlue,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            minimumSize: const Size(0, 36),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          ),
+                        PopupMenuButton<String>(
+                          icon: const Icon(Icons.more_vert, color: AppTheme.textSecondary),
+                          tooltip: 'Actions',
+                          onSelected: (value) {
+                            if (value == 'donate') {
+                              _showDonateDialog(context, product);
+                            }
+                          },
+                          itemBuilder: (BuildContext context) => const [
+                            PopupMenuItem<String>(
+                              value: 'donate',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.volunteer_activism, size: 18, color: AppTheme.donateBlue),
+                                  SizedBox(width: 10),
+                                  Text('Donate', style: TextStyle(fontWeight: FontWeight.w600)),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ]);

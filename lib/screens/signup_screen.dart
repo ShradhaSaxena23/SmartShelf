@@ -59,7 +59,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
     final size = MediaQuery.of(context).size;
     final isDesktop = size.width > 900;
 
