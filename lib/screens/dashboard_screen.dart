@@ -5,6 +5,7 @@ import '../providers/auth_provider.dart';
 import '../providers/product_provider.dart';
 import '../theme/app_theme.dart';
 import 'package:intl/intl.dart';
+import 'donate_dialog.dart';
 
 enum DashboardFilter { all, expiringSoon, expired }
 
@@ -928,82 +929,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   void _showDonateDialog(BuildContext context, ProductModel product) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppTheme.donateBlue.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(Icons.volunteer_activism, color: AppTheme.donateBlue),
-            ),
-            const SizedBox(width: 12),
-            const Text('Donate Product'),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Would you like to donate "${product.name}" to a local food bank or NGO?',
-              style: const TextStyle(fontSize: 14, color: AppTheme.textSecondary),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF0F9FF),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Row(
-                children: [
-                  Icon(Icons.info_outline, color: AppTheme.donateBlue, size: 18),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Donating helps reduce waste and supports communities in need.',
-                      style: TextStyle(fontSize: 12, color: AppTheme.donateBlue),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton.icon(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('${product.name} marked for donation! 🎉'),
-                  backgroundColor: AppTheme.primaryGreen,
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-              );
-            },
-            icon: const Icon(Icons.volunteer_activism, size: 16),
-            label: const Text('Donate Now'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.donateBlue,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-          ),
-        ],
-      ),
-    );
+    showDonateDialog(context, product);
   }
 
   Color _getCategoryColor(String category) {
