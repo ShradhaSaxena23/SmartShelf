@@ -1,1 +1,53 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"smartshelf-4b145","appId":"1:241658950818:android:d1abf17371b59c3ad4d3fb","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"smartshelf-4b145","configurations":{"android":"1:241658950818:android:d1abf17371b59c3ad4d3fb","ios":"1:241658950818:ios:b4f9d3e765b9be21d4d3fb","macos":"1:241658950818:ios:b4f9d3e765b9be21d4d3fb","web":"1:241658950818:web:eb90161579fe3300d4d3fb","windows":"1:241658950818:web:65a633ea5419f077d4d3fb"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "smartshelf-4b145",
+          "appId": "1:241658950818:android:d1abf17371b59c3ad4d3fb",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "smartshelf-4b145",
+          "configurations": {
+            "android": "1:241658950818:android:d1abf17371b59c3ad4d3fb",
+            "ios": "1:241658950818:ios:b4f9d3e765b9be21d4d3fb",
+            "macos": "1:241658950818:ios:b4f9d3e765b9be21d4d3fb",
+            "web": "1:241658950818:web:eb90161579fe3300d4d3fb",
+            "windows": "1:241658950818:web:65a633ea5419f077d4d3fb"
+          }
+        }
+      }
+    }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "disallowLegacyRuntimeConfig": true,
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    }
+  ],
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}
