@@ -41,13 +41,13 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> signUp(String name, String email, String password) async {
+  Future<bool> signUp(String name, String email, String password, {String? location}) async {
     _setLoading(true);
     _errorMessage = null;
     try {
       // Register the account but don't log the user in.
       // User must sign in separately after account creation.
-      await _authRepository.signUp(name: name, email: email, password: password);
+      await _authRepository.signUp(name: name, email: email, password: password, location: location);
       _setLoading(false);
       return true;
     } catch (e) {

@@ -21,6 +21,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
+  final _locationController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
@@ -30,6 +31,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
+    _locationController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
@@ -49,6 +51,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
         _nameController.text,
         _emailController.text,
         _passwordController.text,
+        location: _locationController.text.trim().isNotEmpty
+            ? _locationController.text.trim()
+            : null,
       );
 
       if (success && mounted) {
@@ -143,6 +148,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 prefixIcon: Icon(Icons.email_outlined, size: 20, color: AppTheme.textMuted),
               ),
               validator: (val) => (val == null || !val.contains('@')) ? 'Please enter valid email' : null,
+            ),
+            const SizedBox(height: 18),
+
+            const Text('Location', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+            const SizedBox(height: 8),
+            TextFormField(
+              controller: _locationController,
+              decoration: const InputDecoration(
+                hintText: 'Enter your city or location',
+                prefixIcon: Icon(Icons.location_on_outlined, size: 20, color: AppTheme.textMuted),
+              ),
+              validator: (val) => (val == null || val.trim().isEmpty) ? 'Please enter your location' : null,
             ),
             const SizedBox(height: 18),
 
@@ -333,6 +350,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           prefixIcon: Icon(Icons.email_outlined, size: 20),
                         ),
                         validator: (val) => (val == null || !val.contains('@')) ? 'Please enter valid email' : null,
+                      ),
+                      const SizedBox(height: 16),
+
+                      const Text('Location', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _locationController,
+                        decoration: const InputDecoration(
+                          hintText: 'Enter your city or location',
+                          prefixIcon: Icon(Icons.location_on_outlined, size: 20),
+                        ),
+                        validator: (val) => (val == null || val.trim().isEmpty) ? 'Please enter your location' : null,
                       ),
                       const SizedBox(height: 16),
 

@@ -46,7 +46,7 @@ class MockAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<UserModel> signUp({required String name, required String email, required String password}) async {
+  Future<UserModel> signUp({required String name, required String email, required String password, String? location}) async {
     await Future.delayed(const Duration(milliseconds: 800));
     final normalizedEmail = email.trim().toLowerCase();
 
@@ -60,6 +60,7 @@ class MockAuthRepository implements AuthRepository {
       'uid': newUid,
       'password': password,
       'name': name,
+      if (location != null) 'location': location,
     };
 
     // Return the created user model but do NOT log them in.
@@ -68,6 +69,7 @@ class MockAuthRepository implements AuthRepository {
       uid: newUid,
       email: normalizedEmail,
       displayName: name,
+      location: location,
       createdAt: DateTime.now(),
     );
   }
