@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'providers/auth_provider.dart';
+import 'providers/product_provider.dart';
 import 'repositories/mock_auth_repository.dart';
+import 'repositories/mock_product_repository.dart';
 import 'screens/forgot_password_screen.dart';
-import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
+import 'screens/main_shell.dart';
 import 'screens/signup_screen.dart';
 import 'screens/splash_screen.dart';
 import 'theme/app_theme.dart';
@@ -16,6 +18,9 @@ void main() {
       providers: [
         ChangeNotifierProvider<AuthProvider>(
           create: (_) => AuthProvider(MockAuthRepository()),
+        ),
+        ChangeNotifierProvider<ProductProvider>(
+          create: (_) => ProductProvider(MockProductRepository()),
         ),
       ],
       child: const SmartShelfApp(),
@@ -31,8 +36,8 @@ class SmartShelfApp extends StatefulWidget {
 }
 
 class _SmartShelfAppState extends State<SmartShelfApp> {
-  // App flow: Splash → Sign Up → Login → Dashboard
-  String _currentRoute = 'splash';
+  // App flow: Login → Dashboard (or Sign Up / Forgot Password)
+  String _currentRoute = 'login';
 
   @override
   Widget build(BuildContext context) {
@@ -42,9 +47,9 @@ class _SmartShelfAppState extends State<SmartShelfApp> {
       theme: AppTheme.lightTheme,
       home: Consumer<AuthProvider>(
         builder: (context, authProvider, _) {
-          // Direct to HomeScreen on active login session
+          // Direct to Dashboard on active login session
           if (authProvider.isAuthenticated) {
-            return HomeScreen(
+            return MainShell(
               onSignOut: () {
                 setState(() {
                   _currentRoute = 'login';

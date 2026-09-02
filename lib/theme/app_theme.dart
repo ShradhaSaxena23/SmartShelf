@@ -18,6 +18,16 @@ class AppTheme {
   static const Color warningOrange = Color(0xFFF97316);
   static const Color errorRed = Color(0xFFEF4444);
   static const Color cardBorder = Color(0xFFE2E8F0);
+
+  // Dashboard-specific colors
+  static const Color expiringSoonYellow = Color(0xFFF59E0B);
+  static const Color expiredRed = Color(0xFFDC2626);
+  static const Color donateBlue = Color(0xFF3B82F6);
+  static const Color discountPurple = Color(0xFF8B5CF6);
+  static const Color sparklineRed = Color(0xFFEF4444);
+  static const Color freshGreen = Color(0xFF10B981);
+  static const Color sidebarBg = Color(0xFFFAFBFC);
+  static const Color sidebarActive = Color(0xFFECFDF5);
   
   static ThemeData get lightTheme {
     return ThemeData(
