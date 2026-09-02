@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
 import 'dashboard_screen.dart';
+import 'add_product_screen.dart';
 
 class MainShell extends StatefulWidget {
   final VoidCallback onSignOut;
@@ -16,13 +17,20 @@ class _MainShellState extends State<MainShell> {
   int _selectedIndex = 0;
 
   static const List<_NavItem> _navItems = [
-    _NavItem(icon: Icons.home_rounded, activeIcon: Icons.home_rounded, label: 'Home'),
+    _NavItem(icon: Icons.grid_view_rounded, activeIcon: Icons.grid_view_rounded, label: 'Dashboard'),
+    _NavItem(icon: Icons.add_circle_outline_rounded, activeIcon: Icons.add_circle_rounded, label: 'Add Item'),
     _NavItem(icon: Icons.settings_outlined, activeIcon: Icons.settings_rounded, label: 'Settings'),
   ];
 
   Widget _buildPageContent() {
     if (_selectedIndex == 0) {
       return const DashboardScreen();
+    } else if (_selectedIndex == 1) {
+      return AddProductScreen(
+        onItemAdded: () {
+          setState(() => _selectedIndex = 0);
+        },
+      );
     }
     return Center(
       child: Column(
@@ -160,7 +168,7 @@ class _MainShellState extends State<MainShell> {
                 _buildBottomNavItem(0),
                 // Floating add button
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () => setState(() => _selectedIndex = 1),
                   child: Container(
                     width: 52,
                     height: 52,
@@ -182,7 +190,7 @@ class _MainShellState extends State<MainShell> {
                     child: const Icon(Icons.add, color: Colors.white, size: 28),
                   ),
                 ),
-                _buildBottomNavItem(1),
+                _buildBottomNavItem(2),
               ],
             ),
           ),

@@ -5,6 +5,13 @@ class ProductModel {
   final DateTime expiryDate;
   final double originalPrice;
   final int quantity;
+  final String? brand;
+  final DateTime? mfgDate;
+  final String? batchNumber;
+  final String? barcode;
+  final String? description;
+  final String? location;
+  final List<String> images;
 
   ProductModel({
     required this.id,
@@ -13,6 +20,13 @@ class ProductModel {
     required this.expiryDate,
     required this.originalPrice,
     this.quantity = 1,
+    this.brand,
+    this.mfgDate,
+    this.batchNumber,
+    this.barcode,
+    this.description,
+    this.location,
+    this.images = const [],
   });
 
   ProductModel copyWith({
@@ -22,6 +36,13 @@ class ProductModel {
     DateTime? expiryDate,
     double? originalPrice,
     int? quantity,
+    String? brand,
+    DateTime? mfgDate,
+    String? batchNumber,
+    String? barcode,
+    String? description,
+    String? location,
+    List<String>? images,
   }) {
     return ProductModel(
       id: id ?? this.id,
@@ -30,6 +51,13 @@ class ProductModel {
       expiryDate: expiryDate ?? this.expiryDate,
       originalPrice: originalPrice ?? this.originalPrice,
       quantity: quantity ?? this.quantity,
+      brand: brand ?? this.brand,
+      mfgDate: mfgDate ?? this.mfgDate,
+      batchNumber: batchNumber ?? this.batchNumber,
+      barcode: barcode ?? this.barcode,
+      description: description ?? this.description,
+      location: location ?? this.location,
+      images: images ?? this.images,
     );
   }
 
@@ -74,6 +102,13 @@ class ProductModel {
       expiryDate: DateTime.parse(json['expiryDate'] as String),
       originalPrice: (json['originalPrice'] as num).toDouble(),
       quantity: json['quantity'] != null ? (json['quantity'] as num).toInt() : 1,
+      brand: json['brand'] as String?,
+      mfgDate: json['mfgDate'] != null ? DateTime.parse(json['mfgDate'] as String) : null,
+      batchNumber: json['batchNumber'] as String?,
+      barcode: json['barcode'] as String?,
+      description: json['description'] as String?,
+      location: json['location'] as String?,
+      images: json['images'] != null ? List<String>.from(json['images'] as List) : [],
     );
   }
 
@@ -85,6 +120,13 @@ class ProductModel {
       'expiryDate': expiryDate.toIso8601String(),
       'originalPrice': originalPrice,
       'quantity': quantity,
+      'brand': brand,
+      'mfgDate': mfgDate?.toIso8601String(),
+      'batchNumber': batchNumber,
+      'barcode': barcode,
+      'description': description,
+      'location': location,
+      'images': images,
     };
   }
 }

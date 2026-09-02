@@ -2,15 +2,14 @@ import '../models/product_model.dart';
 import 'product_repository.dart';
 
 class MockProductRepository implements ProductRepository {
-  @override
-  Future<List<ProductModel>> getProducts(String userId) async {
-    await Future.delayed(const Duration(milliseconds: 500));
+  final List<ProductModel> _items = [];
+  bool _initialized = false;
 
+  Future<void> _ensureInitialized() async {
+    if (_initialized) return;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-
-    return [
-      // ── Expired products ──
+    _items.addAll([
       ProductModel(
         id: 'p1',
         name: 'Whole Milk',
@@ -18,6 +17,7 @@ class MockProductRepository implements ProductRepository {
         expiryDate: today.subtract(const Duration(days: 3)),
         originalPrice: 4.99,
         quantity: 12,
+        brand: 'Amul',
       ),
       ProductModel(
         id: 'p2',
@@ -26,6 +26,7 @@ class MockProductRepository implements ProductRepository {
         expiryDate: today.subtract(const Duration(days: 1)),
         originalPrice: 6.49,
         quantity: 8,
+        brand: 'Chobani',
       ),
       ProductModel(
         id: 'p3',
@@ -34,6 +35,7 @@ class MockProductRepository implements ProductRepository {
         expiryDate: today.subtract(const Duration(days: 5)),
         originalPrice: 5.99,
         quantity: 5,
+        brand: 'Boudin',
       ),
       ProductModel(
         id: 'p4',
@@ -42,9 +44,8 @@ class MockProductRepository implements ProductRepository {
         expiryDate: today.subtract(const Duration(days: 2)),
         originalPrice: 8.99,
         quantity: 15,
+        brand: 'La Boulangerie',
       ),
-
-      // ── Expiring within 3 days (25% discount) ──
       ProductModel(
         id: 'p5',
         name: 'Cheddar Cheese',
@@ -52,6 +53,7 @@ class MockProductRepository implements ProductRepository {
         expiryDate: today.add(const Duration(days: 2)),
         originalPrice: 7.99,
         quantity: 20,
+        brand: 'Tillamook',
       ),
       ProductModel(
         id: 'p6',
@@ -67,15 +69,15 @@ class MockProductRepository implements ProductRepository {
         category: 'Beverages',
         expiryDate: today.add(const Duration(days: 3)),
         originalPrice: 5.49,
+        brand: 'Tropicana',
       ),
-
-      // ── Expiring within 5 days (10% discount) ──
       ProductModel(
         id: 'p8',
         name: 'Butter',
         category: 'Dairy',
         expiryDate: today.add(const Duration(days: 4)),
         originalPrice: 4.49,
+        brand: 'Amul',
       ),
       ProductModel(
         id: 'p9',
@@ -83,15 +85,15 @@ class MockProductRepository implements ProductRepository {
         category: 'Snacks',
         expiryDate: today.add(const Duration(days: 5)),
         originalPrice: 3.99,
+        brand: 'Lay\'s',
       ),
-
-      // ── Expiring within 7 days (5% discount) ──
       ProductModel(
         id: 'p10',
         name: 'Almond Milk',
         category: 'Beverages',
         expiryDate: today.add(const Duration(days: 6)),
         originalPrice: 5.99,
+        brand: 'Silk',
       ),
       ProductModel(
         id: 'p11',
@@ -99,15 +101,15 @@ class MockProductRepository implements ProductRepository {
         category: 'Snacks',
         expiryDate: today.add(const Duration(days: 7)),
         originalPrice: 4.99,
+        brand: 'Nature Valley',
       ),
-
-      // ── Fresh products (no discount) ──
       ProductModel(
         id: 'p12',
         name: 'Sparkling Water',
         category: 'Beverages',
         expiryDate: today.add(const Duration(days: 30)),
         originalPrice: 2.99,
+        brand: 'Perrier',
       ),
       ProductModel(
         id: 'p13',
@@ -115,6 +117,7 @@ class MockProductRepository implements ProductRepository {
         category: 'Snacks',
         expiryDate: today.add(const Duration(days: 45)),
         originalPrice: 3.49,
+        brand: 'Lindt',
       ),
       ProductModel(
         id: 'p14',
@@ -122,6 +125,7 @@ class MockProductRepository implements ProductRepository {
         category: 'Dairy',
         expiryDate: today.add(const Duration(days: 20)),
         originalPrice: 3.99,
+        brand: 'Philadelphia',
       ),
       ProductModel(
         id: 'p15',
@@ -130,6 +134,24 @@ class MockProductRepository implements ProductRepository {
         expiryDate: today.add(const Duration(days: 12)),
         originalPrice: 4.49,
       ),
-    ];
+    ]);
+    _initialized = true;
+  }
+
+  @override
+  Future<List<ProductModel>> getProducts(String userId) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    await _ensureInitialized();
+    return List.from(_items);
+  }
+
+  @override
+  Future<ProductModel> addProduct(ProductModel product) async {
+    await Future.delayed(const Duration(milliseconds: 400));
+    await _ensureInitialized();
+    final newId = 'p_${DateTime.now().millisecondsSinceEpoch}';
+    final savedProduct = product.copyWith(id: newId);
+    _items.insert(0, savedProduct);
+    return savedProduct;
   }
 }

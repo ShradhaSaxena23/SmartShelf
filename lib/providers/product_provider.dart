@@ -51,6 +51,25 @@ class ProductProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> addProduct(ProductModel product) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final savedProduct = await _repository.addProduct(product);
+      _products.insert(0, savedProduct);
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
   void updateQuantity(String productId, int newQuantity) {
     if (newQuantity < 0) return;
     final index = _products.indexWhere((p) => p.id == productId);
