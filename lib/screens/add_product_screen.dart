@@ -7,7 +7,7 @@ import '../providers/product_provider.dart';
 import '../services/gemini_extraction_service.dart';
 import '../theme/app_theme.dart';
 
-enum ProductInputMethod { manual, scan, upload }
+enum ProductInputMethod { manual, upload }
 
 class AddProductScreen extends StatefulWidget {
   final VoidCallback? onItemAdded;
@@ -29,13 +29,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _quantityController = TextEditingController();
   final _priceController = TextEditingController();
   final _batchNumberController = TextEditingController();
-  final _barcodeController = TextEditingController();
-  final _descriptionController = TextEditingController();
-  final _locationController = TextEditingController();
 
   String _selectedCategory = 'Dairy';
   DateTime? _expiryDate;
-  DateTime? _mfgDate;
   final List<String> _uploadedImages = [];
 
   bool _isAnalyzing = false;
@@ -47,8 +43,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
     'Beverages',
     'Snacks',
     'Produce',
-    'Meat',
-    'Frozen',
+    'Pulses',
+    'Spices',
     'Pantry',
     'Personal Care',
     'Household',
@@ -62,9 +58,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
     _quantityController.dispose();
     _priceController.dispose();
     _batchNumberController.dispose();
-    _barcodeController.dispose();
-    _descriptionController.dispose();
-    _locationController.dispose();
     super.dispose();
   }
 
@@ -87,18 +80,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
     return price;
   }
 
-  int get _daysUntilExpiry {
-    if (_expiryDate == null) return 999;
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final expiry = DateTime(_expiryDate!.year, _expiryDate!.month, _expiryDate!.day);
-    return expiry.difference(today).inDays;
-  }
-
-  Future<void> _selectDate(BuildContext context, {required bool isExpiry}) async {
-    final initialDate = isExpiry
-        ? (_expiryDate ?? DateTime.now().add(const Duration(days: 14)))
-        : (_mfgDate ?? DateTime.now());
+  Future<void> _selectDate(BuildContext context) async {
+    final initialDate = _expiryDate ?? DateTime.now().add(const Duration(days: 14));
 
     final picked = await showDatePicker(
       context: context,
@@ -121,11 +104,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
     if (picked != null) {
       setState(() {
-        if (isExpiry) {
-          _expiryDate = picked;
-        } else {
-          _mfgDate = picked;
-        }
+        _expiryDate = picked;
       });
     }
   }
@@ -150,10 +129,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
         }
         if (extracted.quantitySize != null) _quantityController.text = extracted.quantitySize!;
         if (extracted.price != null) _priceController.text = extracted.price.toString();
-        if (extracted.mfgDate != null) _mfgDate = extracted.mfgDate;
         if (extracted.expiryDate != null) _expiryDate = extracted.expiryDate;
         if (extracted.batchNumber != null) _batchNumberController.text = extracted.batchNumber!;
-        if (extracted.barcode != null) _barcodeController.text = extracted.barcode!;
 
         // Add a demo mock image if non uploaded
         if (_uploadedImages.isEmpty) {
@@ -164,7 +141,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
         _selectedMethod = ProductInputMethod.manual; // Switch back to form preview
       });
 
-      // Check missing required fields prompt
       final missing = extracted.missingRequiredFields;
       if (missing.isNotEmpty) {
         _showMissingFieldsPrompt(missing);
@@ -276,11 +252,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       originalPrice: double.parse(_priceController.text.trim()),
       quantity: qty,
       brand: _brandController.text.trim().isEmpty ? null : _brandController.text.trim(),
-      mfgDate: _mfgDate,
-      batchNumber: _batchNumberController.text.trim().isEmpty ? null : _batchNumberController.text.trim(),
-      barcode: _barcodeController.text.trim().isEmpty ? null : _barcodeController.text.trim(),
-      description: _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
-      location: _locationController.text.trim().isEmpty ? null : _locationController.text.trim(),
+      batchNumber: _batchNumberController.text.trim(),
       images: List.from(_uploadedImages),
     );
 
@@ -318,7 +290,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header title & subtitle
           const Text(
             'Add New Item',
             style: TextStyle(
@@ -341,8 +312,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
           // Render Scanning / Analyzing State Overlay if active
           if (_isAnalyzing)
             _buildAnalyzingOverlay()
-          else if (_selectedMethod == ProductInputMethod.scan)
-            _buildScanView(isDesktop)
           else if (_selectedMethod == ProductInputMethod.upload)
             _buildUploadView(isDesktop)
           else
@@ -356,7 +325,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
     );
   }
 
-  // ── 1. Method Selector ──
   Widget _buildMethodSelector(bool isDesktop) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -380,17 +348,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 title: 'Add Manually',
                 subtitle: 'Enter product details manually',
                 color: const Color(0xFF10B981),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildMethodCard(
-                method: ProductInputMethod.scan,
-                icon: Icons.qr_code_scanner,
-                activeIcon: Icons.qr_code_scanner,
-                title: 'Scan Barcode',
-                subtitle: 'Scan product label or barcode',
-                color: const Color(0xFF3B82F6),
               ),
             ),
             const SizedBox(width: 12),
@@ -422,9 +379,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
     return GestureDetector(
       onTap: () {
         setState(() => _selectedMethod = method);
-        if (method == ProductInputMethod.scan) {
-          // Trigger scan action
-        }
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
@@ -493,62 +447,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
     );
   }
 
-  // ── 2. Scan Packaging Camera View ──
-  Widget _buildScanView(bool isDesktop) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.cardBorder),
-      ),
-      child: Column(
-        children: [
-          Container(
-            height: 220,
-            width: isDesktop ? 400 : double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.04),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppTheme.primaryGreen.withOpacity(0.4), width: 2),
-            ),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                const Icon(Icons.qr_code_scanner, size: 80, color: AppTheme.primaryGreen),
-                Positioned(
-                  bottom: 16,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.65),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Text(
-                      'Position packaging label in frame',
-                      style: TextStyle(color: Colors.white, fontSize: 12),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primaryGreen,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-            ),
-            onPressed: () => _triggerGeminiAIExtraction('Camera Scan'),
-            icon: const Icon(Icons.auto_awesome, color: Colors.white),
-            label: const Text('Scan & Extract with Gemini AI'),
-          ),
-        ],
-      ),
-    );
-  }
-
   // ── 3. Upload View Dropzone ──
   Widget _buildUploadView(bool isDesktop) {
     return Container(
@@ -561,7 +459,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
       ),
       child: Column(
         children: [
-          // Dropzone card
           InkWell(
             onTap: () => _pickAndExtractImage(),
             borderRadius: BorderRadius.circular(16),
@@ -598,8 +495,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
             ),
           ),
           const SizedBox(height: 20),
-
-          // Render uploaded images preview list if any
           if (_uploadedImages.isNotEmpty) ...[
             Align(
               alignment: Alignment.centerLeft,
@@ -649,7 +544,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
             ),
             const SizedBox(height: 20),
           ],
-
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -751,7 +645,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
     );
   }
 
-  // ── Analyzing Overlay Card ──
   Widget _buildAnalyzingOverlay() {
     return Container(
       width: double.infinity,
@@ -780,7 +673,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
     );
   }
 
-  // ── Desktop 2-Column Form Layout ──
   Widget _buildDesktopFormLayout() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -788,7 +680,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Left Column Form
             Expanded(
               flex: 3,
               child: Column(
@@ -815,6 +706,22 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   ),
                   const SizedBox(height: 16),
                   _buildTextField(
+                    label: 'Batch Number *',
+                    controller: _batchNumberController,
+                    hint: 'e.g. B-99402',
+                    validator: (v) => v == null || v.trim().isEmpty ? 'Batch number is required' : null,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 24),
+            Expanded(
+              flex: 3,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 38),
+                  _buildTextField(
                     label: 'Quantity / Size *',
                     controller: _quantityController,
                     hint: 'e.g. 1 L, 500 g, 1 pack',
@@ -833,80 +740,22 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       return null;
                     },
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 24),
-
-            // Right Column Form
-            Expanded(
-              flex: 3,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 38), // align with fields
+                  const SizedBox(height: 16),
                   _buildDatePickerTile(
                     label: 'Expiry Date *',
                     date: _expiryDate,
-                    onTap: () => _selectDate(context, isExpiry: true),
+                    onTap: () => _selectDate(context),
                   ),
                   const SizedBox(height: 16),
                   _buildSuggestedSellingPriceCard(),
-                  const SizedBox(height: 16),
-                  _buildTextField(
-                    label: 'Location (Optional)',
-                    controller: _locationController,
-                    hint: 'e.g. Store Room, Fridge 1',
-                  ),
-                  const SizedBox(height: 16),
-                  _buildTextField(
-                    label: 'Notes (Optional)',
-                    controller: _descriptionController,
-                    hint: 'Add any additional notes about this item',
-                    maxLines: 3,
-                  ),
                 ],
               ),
             ),
           ],
         ),
         const SizedBox(height: 24),
-
-        // Optional dates & details expansion
-        Row(
-          children: [
-            Expanded(
-              child: _buildDatePickerTile(
-                label: 'Manufacturing Date (Optional)',
-                date: _mfgDate,
-                onTap: () => _selectDate(context, isExpiry: false),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: _buildTextField(
-                label: 'Batch Number (Optional)',
-                controller: _batchNumberController,
-                hint: 'e.g. B-99402',
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: _buildTextField(
-                label: 'Barcode (Optional)',
-                controller: _barcodeController,
-                hint: 'e.g. 8901234567890',
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 24),
-
-        // Images Upload section
         _buildImagesSection(),
         const SizedBox(height: 32),
-
-        // Action Buttons
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
@@ -935,7 +784,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
     );
   }
 
-  // ── Mobile 1-Column Form Layout ──
   Widget _buildMobileFormLayout() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -961,6 +809,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
         ),
         const SizedBox(height: 16),
         _buildTextField(
+          label: 'Batch Number *',
+          controller: _batchNumberController,
+          hint: 'e.g. B-99402',
+          validator: (v) => v == null || v.trim().isEmpty ? 'Batch number is required' : null,
+        ),
+        const SizedBox(height: 16),
+        _buildTextField(
           label: 'Quantity / Size *',
           controller: _quantityController,
           hint: 'e.g. 1 L, 500 g, 1 pack',
@@ -983,35 +838,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
         _buildDatePickerTile(
           label: 'Expiry Date *',
           date: _expiryDate,
-          onTap: () => _selectDate(context, isExpiry: true),
+          onTap: () => _selectDate(context),
         ),
         const SizedBox(height: 16),
         _buildSuggestedSellingPriceCard(),
-        const SizedBox(height: 16),
-        _buildDatePickerTile(
-          label: 'Manufacturing Date (Optional)',
-          date: _mfgDate,
-          onTap: () => _selectDate(context, isExpiry: false),
-        ),
-        const SizedBox(height: 16),
-        _buildTextField(
-          label: 'Batch Number (Optional)',
-          controller: _batchNumberController,
-          hint: 'e.g. B-99402',
-        ),
-        const SizedBox(height: 16),
-        _buildTextField(
-          label: 'Barcode (Optional)',
-          controller: _barcodeController,
-          hint: 'e.g. 8901234567890',
-        ),
-        const SizedBox(height: 16),
-        _buildTextField(
-          label: 'Notes (Optional)',
-          controller: _descriptionController,
-          hint: 'Add any additional notes',
-          maxLines: 3,
-        ),
         const SizedBox(height: 20),
         _buildImagesSection(),
         const SizedBox(height: 28),
@@ -1028,7 +858,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
     );
   }
 
-  // ── Form Field Builders ──
   Widget _buildTextField({
     required String label,
     required TextEditingController controller,
@@ -1131,10 +960,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
     );
   }
 
-  // Dynamic Suggested Price Card
   Widget _buildSuggestedSellingPriceCard() {
     final suggested = _suggestedSellingPrice;
-    final original = double.tryParse(_priceController.text.trim());
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -1190,7 +1017,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
         const SizedBox(height: 10),
         Row(
           children: [
-            // Upload button square
             InkWell(
               onTap: () => _triggerGeminiAIExtraction('Uploaded Image'),
               borderRadius: BorderRadius.circular(12),
@@ -1213,8 +1039,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
               ),
             ),
             const SizedBox(width: 12),
-
-            // Previews list
             ..._uploadedImages.map(
               (img) => Stack(
                 children: [
