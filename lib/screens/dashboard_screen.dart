@@ -511,6 +511,8 @@ class _DashboardScreenState extends State<DashboardScreen>
                               showSaleIdeasDialog(context, product);
                             } else if (value == 'donate') {
                               _showDonateDialog(context, product);
+                            } else if (value == 'delete') {
+                              _confirmDeleteProduct(context, product);
                             }
                           },
                           itemBuilder: (BuildContext context) {
@@ -545,6 +547,18 @@ class _DashboardScreenState extends State<DashboardScreen>
                                 ),
                               );
                             }
+                            items.add(
+                              const PopupMenuItem<String>(
+                                value: 'delete',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.delete_outline, size: 18, color: AppTheme.expiredRed),
+                                    SizedBox(width: 10),
+                                    Text('Delete', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.expiredRed)),
+                                  ],
+                                ),
+                              ),
+                            );
                             return items;
                           },
                         ),
@@ -731,6 +745,8 @@ class _DashboardScreenState extends State<DashboardScreen>
                               showSaleIdeasDialog(context, product);
                             } else if (value == 'donate') {
                               _showDonateDialog(context, product);
+                            } else if (value == 'delete') {
+                              _confirmDeleteProduct(context, product);
                             }
                           },
                           itemBuilder: (BuildContext context) => const [
@@ -751,6 +767,16 @@ class _DashboardScreenState extends State<DashboardScreen>
                                   Icon(Icons.volunteer_activism, size: 18, color: AppTheme.donateBlue),
                                   SizedBox(width: 10),
                                   Text('Donate', style: TextStyle(fontWeight: FontWeight.w600)),
+                                ],
+                              ),
+                            ),
+                            PopupMenuItem<String>(
+                              value: 'delete',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.delete_outline, size: 18, color: AppTheme.expiredRed),
+                                  SizedBox(width: 10),
+                                  Text('Delete', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.expiredRed)),
                                 ],
                               ),
                             ),
@@ -909,6 +935,8 @@ class _DashboardScreenState extends State<DashboardScreen>
                           onSelected: (value) {
                             if (value == 'donate') {
                               _showDonateDialog(context, product);
+                            } else if (value == 'delete') {
+                              _confirmDeleteProduct(context, product);
                             }
                           },
                           itemBuilder: (BuildContext context) => const [
@@ -919,6 +947,16 @@ class _DashboardScreenState extends State<DashboardScreen>
                                   Icon(Icons.volunteer_activism, size: 18, color: AppTheme.donateBlue),
                                   SizedBox(width: 10),
                                   Text('Donate', style: TextStyle(fontWeight: FontWeight.w600)),
+                                ],
+                              ),
+                            ),
+                            PopupMenuItem<String>(
+                              value: 'delete',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.delete_outline, size: 18, color: AppTheme.expiredRed),
+                                  SizedBox(width: 10),
+                                  Text('Delete', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.expiredRed)),
                                 ],
                               ),
                             ),
@@ -1008,6 +1046,53 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   void _showDonateDialog(BuildContext context, ProductModel product) {
     showDonateDialog(context, product);
+  }
+
+  void _confirmDeleteProduct(BuildContext context, ProductModel product) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.delete_outline, color: AppTheme.expiredRed),
+            SizedBox(width: 10),
+            Text('Delete Item', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: Text(
+          'Are you sure you want to remove "${product.name}" from the dashboard table?',
+          style: const TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel', style: TextStyle(color: AppTheme.textSecondary)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Provider.of<ProductProvider>(context, listen: false).deleteProduct(product.id);
+              Navigator.pop(dialogContext);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('${product.name} removed from dashboard'),
+                  backgroundColor: AppTheme.expiredRed,
+                  behavior: SnackBarBehavior.floating,
+                  duration: const Duration(seconds: 2),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.expiredRed,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
   }
 
   Color _getCategoryColor(String category) {

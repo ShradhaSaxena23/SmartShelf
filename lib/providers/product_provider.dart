@@ -78,4 +78,9 @@ class ProductProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  void deleteProduct(String productId) {
+    _products.removeWhere((p) => p.id == productId);
+    notifyListeners();
+  }
 }
