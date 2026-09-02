@@ -230,7 +230,7 @@ class _DashboardScreenState extends State<DashboardScreen>
           });
         },
         decoration: InputDecoration(
-          hintText: 'Search items, categories...',
+          hintText: 'Search items, categories, batch number...',
           hintStyle: const TextStyle(color: AppTheme.textMuted, fontSize: 14),
           prefixIcon: const Icon(Icons.search, color: AppTheme.textMuted, size: 22),
           suffixIcon: _searchQuery.isNotEmpty
@@ -378,7 +378,8 @@ class _DashboardScreenState extends State<DashboardScreen>
         final nameMatch = p.name.toLowerCase().contains(q);
         final categoryMatch = p.category.toLowerCase().contains(q);
         final brandMatch = (p.brand ?? '').toLowerCase().contains(q);
-        return nameMatch || categoryMatch || brandMatch;
+        final batchMatch = (p.batchNumber ?? '').toLowerCase().contains(q);
+        return nameMatch || categoryMatch || brandMatch || batchMatch;
       }).toList();
     }
 
@@ -481,6 +482,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   columns: const [
                     DataColumn(label: Text('Item', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textSecondary, fontSize: 13))),
                     DataColumn(label: Text('Category', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textSecondary, fontSize: 13))),
+                    DataColumn(label: Text('Batch No.', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textSecondary, fontSize: 13))),
                     DataColumn(label: Text('Quantity', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textSecondary, fontSize: 13))),
                     DataColumn(label: Text('Expiration Date', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textSecondary, fontSize: 13))),
                     DataColumn(label: Text('Days Left', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textSecondary, fontSize: 13))),
@@ -493,6 +495,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                     return DataRow(cells: [
                       DataCell(Text(product.name, style: const TextStyle(fontWeight: FontWeight.w600))),
                       DataCell(Text(product.category, style: const TextStyle(color: AppTheme.textSecondary))),
+                      DataCell(Text(product.batchNumber?.isNotEmpty == true ? product.batchNumber! : '-', style: const TextStyle(color: AppTheme.textSecondary))),
                       DataCell(_QuantityControl(product: product)),
                       DataCell(Text(DateFormat('MMM dd, yyyy').format(product.expiryDate), style: const TextStyle(color: AppTheme.textSecondary))),
                       DataCell(_DaysLeftBadge(days: product.daysRemaining)),
@@ -699,6 +702,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   columns: const [
                     DataColumn(label: Text('Item', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textSecondary, fontSize: 13))),
                     DataColumn(label: Text('Category', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textSecondary, fontSize: 13))),
+                    DataColumn(label: Text('Batch No.', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textSecondary, fontSize: 13))),
                     DataColumn(label: Text('Quantity', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textSecondary, fontSize: 13))),
                     DataColumn(label: Text('Expiration Date', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textSecondary, fontSize: 13))),
                     DataColumn(label: Text('Days Left', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textSecondary, fontSize: 13))),
@@ -711,6 +715,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                     return DataRow(cells: [
                       DataCell(Text(product.name, style: const TextStyle(fontWeight: FontWeight.w600))),
                       DataCell(Text(product.category, style: const TextStyle(color: AppTheme.textSecondary))),
+                      DataCell(Text(product.batchNumber?.isNotEmpty == true ? product.batchNumber! : '-', style: const TextStyle(color: AppTheme.textSecondary))),
                       DataCell(_QuantityControl(product: product)),
                       DataCell(Text(DateFormat('MMM dd, yyyy').format(product.expiryDate), style: const TextStyle(color: AppTheme.textSecondary))),
                       DataCell(_DaysLeftBadge(days: product.daysRemaining)),
@@ -881,6 +886,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   columns: const [
                     DataColumn(label: Text('Item', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textSecondary, fontSize: 13))),
                     DataColumn(label: Text('Category', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textSecondary, fontSize: 13))),
+                    DataColumn(label: Text('Batch No.', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textSecondary, fontSize: 13))),
                     DataColumn(label: Text('Quantity', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textSecondary, fontSize: 13))),
                     DataColumn(label: Text('Expired On', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textSecondary, fontSize: 13))),
                     DataColumn(label: Text('Days Ago', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textSecondary, fontSize: 13))),
@@ -891,6 +897,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                     return DataRow(cells: [
                       DataCell(Text(product.name, style: const TextStyle(fontWeight: FontWeight.w600))),
                       DataCell(Text(product.category, style: const TextStyle(color: AppTheme.textSecondary))),
+                      DataCell(Text(product.batchNumber?.isNotEmpty == true ? product.batchNumber! : '-', style: const TextStyle(color: AppTheme.textSecondary))),
                       DataCell(_QuantityControl(product: product)),
                       DataCell(Text(DateFormat('MMM dd, yyyy').format(product.expiryDate), style: const TextStyle(color: AppTheme.textSecondary))),
                       DataCell(Text('${product.daysRemaining.abs()} days ago', style: const TextStyle(color: AppTheme.expiredRed, fontWeight: FontWeight.w600))),
@@ -1038,87 +1045,6 @@ class _QuantityControl extends StatelessWidget {
   final ProductModel product;
   const _QuantityControl({required this.product});
 
-  void _showEditQuantityDialog(BuildContext context) {
-    final controller = TextEditingController(text: product.quantity.toString());
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppTheme.primaryGreen.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(Icons.edit_note, color: AppTheme.primaryGreen),
-            ),
-            const SizedBox(width: 10),
-            const Text('Modify Quantity', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Update stock quantity for "${product.name}"',
-              style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: controller,
-              keyboardType: TextInputType.number,
-              autofocus: true,
-              decoration: InputDecoration(
-                labelText: 'Quantity (pcs)',
-                labelStyle: const TextStyle(color: AppTheme.textSecondary),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppTheme.primaryGreen, width: 2),
-                ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel', style: TextStyle(color: AppTheme.textSecondary)),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final newQty = int.tryParse(controller.text);
-              if (newQty != null && newQty >= 0) {
-                Provider.of<ProductProvider>(context, listen: false)
-                    .updateQuantity(product.id, newQty);
-                Navigator.pop(dialogContext);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('${product.name} quantity updated to $newQty pcs'),
-                    backgroundColor: AppTheme.primaryGreen,
-                    behavior: SnackBarBehavior.floating,
-                    duration: const Duration(seconds: 2),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
-                );
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primaryGreen,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            ),
-            child: const Text('Update'),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ProductProvider>(context, listen: false);
@@ -1147,29 +1073,14 @@ class _QuantityControl extends StatelessWidget {
               ),
             ),
           ),
-          InkWell(
-            onTap: () => _showEditQuantityDialog(context),
-            borderRadius: BorderRadius.circular(6),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    '${product.quantity}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                      color: AppTheme.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(width: 3),
-                  const Icon(
-                    Icons.edit,
-                    size: 11,
-                    color: AppTheme.textSecondary,
-                  ),
-                ],
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+            child: Text(
+              '${product.quantity}',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+                color: AppTheme.textPrimary,
               ),
             ),
           ),

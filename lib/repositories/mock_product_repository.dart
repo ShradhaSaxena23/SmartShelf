@@ -18,6 +18,7 @@ class MockProductRepository implements ProductRepository {
         originalPrice: 4.99,
         quantity: 12,
         brand: 'Amul',
+        batchNumber: 'BCH-2026-01',
       ),
       ProductModel(
         id: 'p2',
@@ -27,6 +28,7 @@ class MockProductRepository implements ProductRepository {
         originalPrice: 6.49,
         quantity: 8,
         brand: 'Chobani',
+        batchNumber: 'BCH-2026-02',
       ),
       ProductModel(
         id: 'p3',
@@ -36,6 +38,7 @@ class MockProductRepository implements ProductRepository {
         originalPrice: 5.99,
         quantity: 5,
         brand: 'Boudin',
+        batchNumber: 'BCH-2026-03',
       ),
       ProductModel(
         id: 'p4',
@@ -45,6 +48,7 @@ class MockProductRepository implements ProductRepository {
         originalPrice: 8.99,
         quantity: 15,
         brand: 'La Boulangerie',
+        batchNumber: 'BCH-2026-04',
       ),
       ProductModel(
         id: 'p5',
@@ -54,6 +58,7 @@ class MockProductRepository implements ProductRepository {
         originalPrice: 7.99,
         quantity: 20,
         brand: 'Tillamook',
+        batchNumber: 'BCH-2026-05',
       ),
       ProductModel(
         id: 'p6',
@@ -62,6 +67,7 @@ class MockProductRepository implements ProductRepository {
         expiryDate: today.add(const Duration(days: 1)),
         originalPrice: 6.49,
         quantity: 10,
+        batchNumber: 'BCH-2026-06',
       ),
       ProductModel(
         id: 'p7',
@@ -70,6 +76,7 @@ class MockProductRepository implements ProductRepository {
         expiryDate: today.add(const Duration(days: 3)),
         originalPrice: 5.49,
         brand: 'Tropicana',
+        batchNumber: 'BCH-2026-07',
       ),
       ProductModel(
         id: 'p8',
@@ -78,6 +85,7 @@ class MockProductRepository implements ProductRepository {
         expiryDate: today.add(const Duration(days: 4)),
         originalPrice: 4.49,
         brand: 'Amul',
+        batchNumber: 'BCH-2026-08',
       ),
       ProductModel(
         id: 'p9',
@@ -86,6 +94,7 @@ class MockProductRepository implements ProductRepository {
         expiryDate: today.add(const Duration(days: 5)),
         originalPrice: 3.99,
         brand: 'Lay\'s',
+        batchNumber: 'BCH-2026-09',
       ),
       ProductModel(
         id: 'p10',
@@ -94,6 +103,7 @@ class MockProductRepository implements ProductRepository {
         expiryDate: today.add(const Duration(days: 6)),
         originalPrice: 5.99,
         brand: 'Silk',
+        batchNumber: 'BCH-2026-10',
       ),
       ProductModel(
         id: 'p11',
@@ -102,6 +112,7 @@ class MockProductRepository implements ProductRepository {
         expiryDate: today.add(const Duration(days: 7)),
         originalPrice: 4.99,
         brand: 'Nature Valley',
+        batchNumber: 'BCH-2026-11',
       ),
       ProductModel(
         id: 'p12',
@@ -110,6 +121,7 @@ class MockProductRepository implements ProductRepository {
         expiryDate: today.add(const Duration(days: 30)),
         originalPrice: 2.99,
         brand: 'Perrier',
+        batchNumber: 'BCH-2026-12',
       ),
       ProductModel(
         id: 'p13',
@@ -118,6 +130,7 @@ class MockProductRepository implements ProductRepository {
         expiryDate: today.add(const Duration(days: 45)),
         originalPrice: 3.49,
         brand: 'Lindt',
+        batchNumber: 'BCH-2026-13',
       ),
       ProductModel(
         id: 'p14',
@@ -126,6 +139,7 @@ class MockProductRepository implements ProductRepository {
         expiryDate: today.add(const Duration(days: 20)),
         originalPrice: 3.99,
         brand: 'Philadelphia',
+        batchNumber: 'BCH-2026-14',
       ),
       ProductModel(
         id: 'p15',
@@ -133,6 +147,7 @@ class MockProductRepository implements ProductRepository {
         category: 'Bakery',
         expiryDate: today.add(const Duration(days: 12)),
         originalPrice: 4.49,
+        batchNumber: 'BCH-2026-15',
       ),
     ]);
     _initialized = true;
